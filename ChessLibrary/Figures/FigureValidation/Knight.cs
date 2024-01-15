@@ -25,5 +25,10 @@ public class Knight : IMoveFigure
         }
         return false;
     }
+
+    public bool CheckPath(Coord fromCoord, Coord toCoord, Figure[,] board)
+    {
+        return true;
+    }
 }
 

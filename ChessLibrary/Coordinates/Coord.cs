@@ -24,6 +24,14 @@ public struct Coord
         numericLetter = (int)Letters.Parse(typeof(Letters), letter.ToString());
     }
 
+    public Coord (int i, int j)
+    {
+        letter = ' ';
+        //letter = (char) Letters.Parse(typeof(Letters), j.ToString());
+        numericLetter = j;
+        number = i;
+    }
+
     public Coord(Coord coord)
     {
         letter = coord.letter;

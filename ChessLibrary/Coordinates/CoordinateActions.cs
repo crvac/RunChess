@@ -16,4 +16,15 @@ public class CoordinateActions
         }
         else return InputCoorinates(Console.ReadLine());
     }
+
+    /// <summary>
+    /// Checks if the coordinates are equal
+    /// </summary>
+    /// <param name="cord1"></param>
+    /// <param name="cord2"></param>
+    /// <returns></returns>
+    public bool AreCoordsEqual(Coord cord1, Coord cord2)
+    {
+        return cord1.number == cord2.number && cord1.numericLetter == cord2.numericLetter;
+    }
 }

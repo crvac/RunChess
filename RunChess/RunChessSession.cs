@@ -11,7 +11,7 @@ internal class RunChessSession
         bool tryagain = true;
         do
         {
-            Console.Write("Choose youtr game: ");
+            Console.Write("Choose your game: ");
             string input = Console.ReadLine();
             if (int.TryParse(input, out int game))
             {
@@ -93,9 +93,9 @@ internal class RunChessSession
         var boardActions = new BoardLib();
         var printBoard = new BoardPrint();
         var coordActions = new CoordinateActions();
-        var figureNameValidate = new FigureNameValidate();
+        //var figureNameValidate = new FigureNameValidate();
 
-        //Creates an empty board and prints it
+        //Creates and print an empty board and prints it
         _board = boardActions.MakeEmptyBoard();
         printBoard.PrintBoard(_board);
 
@@ -114,6 +114,7 @@ internal class RunChessSession
         {
             Console.Write("Enter the coordinates for the black King: ");
             kingBlack.coord = coordActions.InputCoorinates(Console.ReadLine());
+            //Checks if WHite king will be chekced after placing down the figure, and if the coordinates are not busy by another figure
             if (boardActions.CheckValidate(kingBlack, kingWhite) || !boardActions.CheckIfEmpty(kingBlack))
             {
                 tryagain = true;
@@ -127,6 +128,7 @@ internal class RunChessSession
 
         printBoard.PrintBoard(_board);
 
+        //put the black queen on board (same logic as black king)
         Figure queenBlack = new Figure("Q", "B");
         do
         {
@@ -145,13 +147,14 @@ internal class RunChessSession
 
         printBoard.PrintBoard(_board);
 
+        //put 1st black rook
         Figure rook1Black = new Figure("R", "B");        
         do
         {
             Console.Write("Enter the coordinates for the 1st black rook: ");
             rook1Black.coord = coordActions.InputCoorinates(Console.ReadLine());
             if (!boardActions.CheckValidate(rook1Black, kingWhite) 
-                && !boardActions.NewCordValidate(kingWhite, rook1Black.coord) 
+                /*&& !boardActions.NewCordValidate(kingWhite, rook1Black.coord)*/
                 && boardActions.CheckIfEmpty(rook1Black))
             {
                 _board = boardActions.PlaceOnBoard(rook1Black);
@@ -165,13 +168,14 @@ internal class RunChessSession
 
         printBoard.PrintBoard(_board);
 
+        //put 2nd black rook
         Figure rook2Black = new Figure("R", "B");
         do
         {
             Console.Write("Enter the coordinates for the 2nd black rook: ");
             rook2Black.coord = coordActions.InputCoorinates(Console.ReadLine());
             if (!boardActions.CheckValidate(rook2Black, kingWhite) 
-                && !boardActions.NewCordValidate(kingWhite, rook2Black.coord)
+                /*&& !boardActions.NewCordValidate(kingWhite, rook2Black.coord)*/
                 && boardActions.CheckIfEmpty(rook2Black))
             {
                 _board = boardActions.PlaceOnBoard(rook2Black);
@@ -185,5 +189,86 @@ internal class RunChessSession
 
 
         printBoard.PrintBoard(_board);
+
+        //PLaying chess
+        int chooseFigure = 1; //A variabale to choose wich figure is moved 
+        bool checkmate = false;
+        do
+        {
+            //If king is white king is under a check and cannot go anywhere, then its a mate.
+            if (boardActions.MateValidate(kingWhite))
+            {
+                checkmate = true;
+            }
+
+            //User moves white King
+            tryagain = true;
+            do
+            {
+                //Takes input coordinate and validates
+                Console.Write("Enter the coordinates to move to: ");
+                Coord toCoord = coordActions.InputCoorinates(Console.ReadLine());
+                //Move validate
+                if (boardActions.NewCordValidate(kingWhite, toCoord) && !boardActions.FindCheck(kingWhite, toCoord)
+                    && !coordActions.AreCoordsEqual(toCoord, kingWhite.coord))
+                {
+                    //Prints the board with your figure on the new coordinates
+                    _board = boardActions.MoveFiguretoNewCoord(kingWhite, toCoord);
+                    printBoard.PrintBoard(_board);
+                    kingWhite.coord = new Coord(toCoord);
+                    tryagain = false;
+                }
+            } while (tryagain);
+
+            // Black makes a move
+            tryagain = true;
+            do
+            {
+                //choose the pice to play with (Queen - 1 Rook1 - 2 Rook2 - 3)
+                Coord game2 = new Coord();
+                switch (chooseFigure)
+                {
+                    case 1:
+                        chooseFigure = 2;
+                        game2 = boardActions.CheckForGame2(queenBlack, kingWhite);
+                        if (game2.letter != 'Z')
+                        {
+                            _board = boardActions.MoveFiguretoNewCoord(queenBlack, game2);
+                            printBoard.PrintBoard(_board);
+                            queenBlack.coord = new Coord(game2);
+                            tryagain = false;
+                        }
+                        break;
+                    case 2: 
+                        chooseFigure = 3;
+                        game2 = boardActions.CheckForGame2(rook1Black, kingWhite);
+                        if (game2.letter != 'Z')
+                        {
+                            _board = boardActions.MoveFiguretoNewCoord(rook1Black, game2);
+                            printBoard.PrintBoard(_board);
+                            queenBlack.coord = new Coord(game2);
+                            tryagain = false;
+                        }
+                        break;
+                    case 3: 
+                        chooseFigure = 1;
+                        game2 = boardActions.CheckForGame2(rook2Black, kingWhite);
+                        if (game2.letter != 'Z')
+                        {
+                            _board = boardActions.MoveFiguretoNewCoord(rook2Black, game2);
+                            printBoard.PrintBoard(_board);
+                            queenBlack.coord = new Coord(game2);
+                            tryagain = false;
+                        }
+                        break;
+                }
+                //look for valid moves, and find the one with check
+                //if no check is found play a safe move to avoid draw
+               
+            } while (tryagain);
+
+
+        } while (checkmate == false);
+        Console.WriteLine("____CHEKCMATE____");
     }
 }

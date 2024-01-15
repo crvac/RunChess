@@ -1,4 +1,7 @@
-﻿namespace ChessLibrary;
+﻿using ChessLib;
+using System.Net.NetworkInformation;
+
+namespace ChessLibrary;
 
 public class BoardLib
 {
@@ -16,6 +19,7 @@ public class BoardLib
             {
                 board[i, j].name = FigureName.empty;
                 board[i, j].team = FigureTeam.empty;
+                board[i, j].coord = new Coord(i, j);
             }
         }
 
@@ -29,8 +33,7 @@ public class BoardLib
     /// <param name="figurename">Figure</param>
     public Figure[,] PlaceOnBoard(Figure figure)
     {
-        board[figure.coord.number, figure.coord.numericLetter].name = figure.name;
-        board[figure.coord.number, figure.coord.numericLetter].team = figure.team;
+        board[figure.coord.number, figure.coord.numericLetter] = new Figure(figure);
 
         return board;
     }
@@ -48,10 +51,17 @@ public class BoardLib
         //figure.coord = new Coord(toCoord);
 
         board[figure.coord.number, figure.coord.numericLetter] = new Figure();
+        board[figure.coord.number, figure.coord.numericLetter].coord = new Coord(figure.coord.number, figure.coord.numericLetter);
 
         return board;
     }
 
+    /// <summary>
+    /// Checks if the figure can go to the specified coordinate
+    /// </summary>
+    /// <param name="figure1">The figure</param>
+    /// <param name="toCoord">The coord to go to</param>
+    /// <returns>true/false</returns>
     public bool NewCordValidate(Figure figure1 ,Coord toCoord)
     {
         var coordinateActions = new CoordinateActions();
@@ -84,7 +94,7 @@ public class BoardLib
 
     public bool MoveFigure(IMoveFigure figure, Coord coord, Coord newcoord)
     {
-        return figure.NewCoordMoveValidate(coord, newcoord);
+        return figure.NewCoordMoveValidate(coord, newcoord) && figure.CheckPath(coord, newcoord, board);
     }
 
     /// <summary>
@@ -99,10 +109,10 @@ public class BoardLib
     }
 
     /// <summary>
-    /// If after the move theres a check return true
+    /// If there's a check returns true
     /// </summary>
-    /// <param name="fromCoord">Figure coordinates</param>
-    /// <param name="toCoord">Enemy king coordinates</param>
+    /// <param name="figure1">Figure coordinates</param>
+    /// <param name="figure2">Enemy king coordinates</param>
     /// <returns>true/false</returns>
     public bool CheckValidate(Figure figure1, Figure figure2)
     {
@@ -128,12 +138,7 @@ public class BoardLib
                 break;
         }
 
-        if (MoveFigure(figure, figure1.coord, figure2.coord))
-        {
-
-            return true;
-        }
-        else return false;
+        return MoveFigure(figure, figure1.coord, figure2.coord);
     }
 
     /// <summary>
@@ -149,5 +154,89 @@ public class BoardLib
         }
         else return false;
     }
-}
 
+    /// <summary>
+    /// Checks if theres check to the specified king
+    /// </summary>
+    /// <param name="king">King that needs to be checked for checks</param>
+    /// <param name="newCoord">if the move is doen by the king (if king is not moved newCoord = king.Coord)</param>
+    /// <returns>treu/false</returns>
+    public bool FindCheck(Figure king, Coord newCoord)
+    {
+        king.coord = new Coord(newCoord);
+
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (board[i, j].name != FigureName.empty && board[i, j].team != king.team)
+                {
+                    if (CheckValidate(board[i, j], king))
+                        return true;
+                    else continue;
+                }
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Looks for avalable moves to check the king
+    /// </summary>
+    /// <param name="figure">figure</param>
+    /// <param name="enemyKing">king to be checked</param>
+    /// <returns>coordinates for the figure, if no check is found return an empty figure</returns>
+    public Coord CheckForGame2(Figure figure, Figure enemyKing)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (board[i, j].name == FigureName.empty)
+                {
+                    //Console.WriteLine(i + " " + j);
+                    //figure.coord = new Coord(i, j);
+                    if (NewCordValidate(figure, board[i, j].coord) /*&& CheckValidate(figure, enemyKing)*/)
+                    {
+                        Coord tempCoord = new Coord(figure.coord);
+                        figure.coord = new Coord(i, j);
+                        if (CheckValidate(figure, enemyKing) && !NewCordValidate(enemyKing, figure.coord))
+                        {
+                            /*board[i, j] = new Figure(figure);
+                            board[tempCoord.number, tempCoord.numericLetter] = new Figure();*/
+
+                            return board[i, j].coord;
+                        }
+                        else
+                        {
+                            figure.coord = new Coord(tempCoord);
+                        }
+                    }
+                }
+            }
+        }
+        return new Coord();
+    }
+
+    public bool MateValidate(Figure king)
+    {
+
+        //All king avlaable moves
+        int[] x = { 0, 1, 1,  1,  0, -1, -1, -1 };
+        int[] y = { 1, 1, 0, -1, -1, -1,  0,  1 };
+
+        //MOve king to new coords to see if the move is valid
+        for (int m = 1; m < 8; m++)
+        {
+            Coord potentialMove = new Coord(king.coord.number + y[m], king.coord.numericLetter + x[m]);
+
+            if (!FindCheck(king, potentialMove))
+            {
+                return false;
+            }
+            else continue;
+        }
+        return true;
+    }
+}
+ 

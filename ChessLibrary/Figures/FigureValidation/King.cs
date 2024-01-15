@@ -13,4 +13,9 @@ public class King : IMoveFigure
     {
         return (Math.Abs(toCoord.numericLetter - fromCoord.numericLetter) <= 1 && Math.Abs(toCoord.number - fromCoord.number) <= 1);
     }
+
+    public bool CheckPath(Coord fromCoord, Coord toCoord, Figure[,] board)
+    {
+        return true;
+    }
 }
