@@ -23,15 +23,10 @@ public class Rook : IMoveFigure
     /// <returns>Tru if patch is empty</returns>
     public bool CheckPath(Coord fromCoord, Coord toCoord, Figure[,] board)
     {
-        if (!NewCoordMoveValidate(fromCoord, toCoord)) return false;
-        if (board[toCoord.number, toCoord.numericLetter].team ==
-            board[fromCoord.number, fromCoord.numericLetter].team) 
-                return false;
-
         if (toCoord.numericLetter == fromCoord.numericLetter &&
             fromCoord.number < toCoord.number)
         {
-            for (int i = fromCoord.number + 1; i < toCoord.number - 1; i++)
+            for (int i = fromCoord.number + 1; i <= toCoord.number - 1; i++)
             {
                 if (board[i, toCoord.numericLetter].name != FigureName.empty)
                     return false;
@@ -40,7 +35,7 @@ public class Rook : IMoveFigure
         }
         else if (toCoord.numericLetter == fromCoord.numericLetter && fromCoord.number > toCoord.number)
         {
-            for (int i = fromCoord.number - 1; i > toCoord.number + 1; i--)
+            for (int i = fromCoord.number - 1; i >= toCoord.number + 1; i--)
             {
                 if (board[i, toCoord.numericLetter].name != FigureName.empty)
                     return false;
@@ -49,7 +44,7 @@ public class Rook : IMoveFigure
         }
         else if (toCoord.number == fromCoord.number && fromCoord.numericLetter < toCoord.numericLetter)
         {
-            for (int i = fromCoord.numericLetter + 1; i < toCoord.numericLetter - 1; i++)
+            for (int i = fromCoord.numericLetter + 1; i <= toCoord.numericLetter - 1; i++)
             {
                 if (board[toCoord.number, i].name != FigureName.empty)
                     return false;
@@ -58,11 +53,16 @@ public class Rook : IMoveFigure
         }
         else if (toCoord.number == fromCoord.number && fromCoord.numericLetter > toCoord.numericLetter)
         {
-            for (int i = fromCoord.numericLetter - 1; i > toCoord.numericLetter + 1; i--)
+            for (int i = fromCoord.numericLetter - 1; i >= toCoord.numericLetter + 1; i--)
             {
                 if (board[toCoord.number, i].name != FigureName.empty)
                     return false;
             }
+            return true;
+        }
+        else if ((board[toCoord.number, toCoord.numericLetter].team !=
+            board[fromCoord.number, fromCoord.numericLetter].team))
+        {
             return true;
         }
         else return false;

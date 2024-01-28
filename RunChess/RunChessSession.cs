@@ -60,6 +60,12 @@ internal class RunChessSession
                 {
                     figure.team = FigureTeam.white;
                     //Prints the board with your figure on it
+                    Figure figure1 = new Figure("K", "B");
+                    figure1.coord = new Coord(3, 6);
+                    boardActions.PlaceOnBoard(figure1);
+                    Figure figure2 = new Figure("K", "B");
+                    figure2.coord = new Coord(5, 4);
+                    boardActions.PlaceOnBoard(figure2);
                     printBoard.PrintBoard(boardActions.PlaceOnBoard(figure));
                     tryagain = false;
                 }
@@ -78,6 +84,8 @@ internal class RunChessSession
                     //Prints the board with your figure on the new coordinates
                     printBoard.PrintBoard(boardActions.MoveFiguretoNewCoord(figure, toCoord));
                     figure.coord = new Coord(toCoord);
+                    boardActions.PlaceOnBoard(figure);
+                    printBoard.PrintBoard(boardActions.OccupiedCells(FigureTeam.W));
                     tryagain = false;
                 }
             } while (tryagain);
@@ -196,7 +204,7 @@ internal class RunChessSession
         do
         {
             //If king is white king is under a check and cannot go anywhere, then its a mate.
-            if (boardActions.MateValidate(kingWhite))
+            if (boardActions.FindCheck(kingWhite, kingWhite.coord) && boardActions.MateValidate(kingWhite))
             {
                 checkmate = true;
             }
@@ -234,8 +242,9 @@ internal class RunChessSession
                         if (game2.letter != 'Z')
                         {
                             _board = boardActions.MoveFiguretoNewCoord(queenBlack, game2);
-                            printBoard.PrintBoard(_board);
                             queenBlack.coord = new Coord(game2);
+                            printBoard.PrintBoard(_board);
+                            
                             tryagain = false;
                         }
                         break;
@@ -245,8 +254,9 @@ internal class RunChessSession
                         if (game2.letter != 'Z')
                         {
                             _board = boardActions.MoveFiguretoNewCoord(rook1Black, game2);
+                            rook1Black.coord = new Coord(game2);
                             printBoard.PrintBoard(_board);
-                            queenBlack.coord = new Coord(game2);
+                            
                             tryagain = false;
                         }
                         break;
@@ -256,8 +266,9 @@ internal class RunChessSession
                         if (game2.letter != 'Z')
                         {
                             _board = boardActions.MoveFiguretoNewCoord(rook2Black, game2);
+                            rook2Black.coord = new Coord(game2);
                             printBoard.PrintBoard(_board);
-                            queenBlack.coord = new Coord(game2);
+                            
                             tryagain = false;
                         }
                         break;
@@ -267,7 +278,7 @@ internal class RunChessSession
                
             } while (tryagain);
 
-
+            printBoard.PrintBoard(boardActions.OccupiedCells(FigureTeam.B));
         } while (checkmate == false);
         Console.WriteLine("____CHEKCMATE____");
     }

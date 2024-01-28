@@ -47,11 +47,11 @@ public class BoardLib
     /// <param name="newcoord">The coordinates the figure has to go to</param>
     public Figure[,] MoveFiguretoNewCoord(Figure figure, Coord toCoord)
     {
-        board[toCoord.number, toCoord.numericLetter] = board[figure.coord.number, figure.coord.numericLetter];
-        //figure.coord = new Coord(toCoord);
+        board[toCoord.number, toCoord.numericLetter] = new Figure(board[figure.coord.number, figure.coord.numericLetter]);
+        board[toCoord.number, toCoord.numericLetter].coord = new Coord(toCoord);
 
         board[figure.coord.number, figure.coord.numericLetter] = new Figure();
-        board[figure.coord.number, figure.coord.numericLetter].coord = new Coord(figure.coord.number, figure.coord.numericLetter);
+        //board[figure.coord.number, figure.coord.numericLetter].coord = new Coord(figure.coord.number, figure.coord.numericLetter);
 
         return board;
     }
@@ -62,11 +62,11 @@ public class BoardLib
     /// <param name="figure1">The figure</param>
     /// <param name="toCoord">The coord to go to</param>
     /// <returns>true/false</returns>
-    public bool NewCordValidate(Figure figure1 ,Coord toCoord)
+    public bool NewCordValidate(Figure figure1, Coord toCoord)
     {
         var coordinateActions = new CoordinateActions();
         //Console.WriteLine("Where do you want to move your piece?");
-//      var newcoord = coordinateActions.InputCoorinates();
+        //      var newcoord = coordinateActions.InputCoorinates();
         IMoveFigure figure = null;
         switch (figure1.name)
         {
@@ -112,9 +112,9 @@ public class BoardLib
     /// If there's a check returns true
     /// </summary>
     /// <param name="figure1">Figure coordinates</param>
-    /// <param name="figure2">Enemy king coordinates</param>
+    /// <param name="king">Enemy king coordinates</param>
     /// <returns>true/false</returns>
-    public bool CheckValidate(Figure figure1, Figure figure2)
+    public bool CheckValidate(Figure figure1, Figure king)
     {
         IMoveFigure figure = null;
         switch (figure1.name)
@@ -138,7 +138,7 @@ public class BoardLib
                 break;
         }
 
-        return MoveFigure(figure, figure1.coord, figure2.coord);
+        return MoveFigure(figure, figure1.coord, king.coord);
     }
 
     /// <summary>
@@ -222,21 +222,61 @@ public class BoardLib
     {
 
         //All king avlaable moves
-        int[] x = { 0, 1, 1,  1,  0, -1, -1, -1 };
-        int[] y = { 1, 1, 0, -1, -1, -1,  0,  1 };
+        int[] x = { 0, 1, 1, 1, 0, -1, -1, -1 };
+        int[] y = { 1, 1, 0, -1, -1, -1, 0, 1 };
 
         //MOve king to new coords to see if the move is valid
         for (int m = 1; m < 8; m++)
         {
-            Coord potentialMove = new Coord(king.coord.number + y[m], king.coord.numericLetter + x[m]);
-
-            if (!FindCheck(king, potentialMove))
+            //validation
+            if (0 <= king.coord.number + y[m] && king.coord.number + y[m] < 8 &&
+                0 <= king.coord.numericLetter + x[m] && king.coord.numericLetter + x[m] < 8)
             {
-                return false;
+                Coord potentialMove = new Coord(king.coord.number + y[m], king.coord.numericLetter + x[m]);
+
+                if (!FindCheck(king, potentialMove))
+                {
+                    return false;
+                }
+                else continue;
             }
-            else continue;
         }
         return true;
     }
+
+    public Figure[,] OccupiedCells(FigureTeam team)
+    {
+        Figure[,] ocupBoard = new Figure[8, 8];
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                ocupBoard[i, j].name = FigureName.empty;
+                ocupBoard[i, j].team = FigureTeam.empty;
+                ocupBoard[i, j].coord = new Coord(i, j);
+            }
+        }
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (board[i, j].team == team)
+                {
+                    ocupBoard[i, j] = new Figure(board[i, j]);
+                    for (int k = 0; k < 8; k++) 
+                    {
+                        for (int m = 0; m < 8; m++)
+                        {
+                            if (NewCordValidate(board[i, j], board[k, m].coord))
+                            {
+                                ocupBoard[k, m] = new Figure(board[i, j]);
+                            }
+                                }
+                    }
+                }
+            }
+        }
+        return ocupBoard;
+    }
 }
- 
+
