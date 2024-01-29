@@ -6,3 +6,4 @@ public enum FigureTeam
     black = 1, B = 1,
     empty = 99
 }
+

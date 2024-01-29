@@ -7,6 +7,8 @@ public class BoardLib
 {
     private Figure[,] board = new Figure[8, 8];
 
+    public Figure[,] GetBoard { get { return board; } }
+
     /// <summary>
     /// Creates a chessboard without the coordinates.
     /// </summary>
@@ -232,9 +234,11 @@ public class BoardLib
             if (0 <= king.coord.number + y[m] && king.coord.number + y[m] < 8 &&
                 0 <= king.coord.numericLetter + x[m] && king.coord.numericLetter + x[m] < 8)
             {
-                Coord potentialMove = new Coord(king.coord.number + y[m], king.coord.numericLetter + x[m]);
+                //Coord potentialMove = new Coord(king.coord.number + y[m], king.coord.numericLetter + x[m]);
+                var ocupCells = new Figure[8,8];
+                ocupCells = OccupiedCells(FigureTeam.B); //CAN U APPLY OPERATORS ON ENUM?
 
-                if (!FindCheck(king, potentialMove))
+                if (ocupCells[king.coord.number + y[m], king.coord.numericLetter + x[m]].team == FigureTeam.empty)
                 {
                     return false;
                 }
