@@ -106,108 +106,122 @@ internal class RunChessSession
         //Creates and print an empty board and prints it
         _board = boardActions.MakeEmptyBoard();
         printBoard.PrintBoard(_board);
-
-        //Put white king on board
-        Figure kingWhite = new Figure("K","W");
-        Console.Write("Enter the coordinates for the white King: ");
-        kingWhite.coord = coordActions.InputCoorinates(Console.ReadLine());
-        _board = boardActions.PlaceOnBoard(kingWhite);
-
-        printBoard.PrintBoard(_board);
-        //Put the Black figures on the board
         bool tryagain = true;
+       
 
+        printBoard.PrintBoard(_board);
+        Figure kingWhite = new Figure("K", "W");
         Figure kingBlack = new Figure("K", "B");
-        do
-        {
-            Console.Write("Enter the coordinates for the black King: ");
-            kingBlack.coord = coordActions.InputCoorinates(Console.ReadLine());
-            //Checks if WHite king will be chekced after placing down the figure, and if the coordinates are not busy by another figure
-            if (boardActions.CheckValidate(kingBlack, kingWhite) || !boardActions.CheckIfEmpty(kingBlack))
-            {
-                tryagain = true;
-            }
-            else
-            {
-                _board = boardActions.PlaceOnBoard(kingBlack);
-                tryagain = false;
-            }
-        } while (tryagain);
-
-        printBoard.PrintBoard(_board);
-
-        //put the black queen on board (same logic as black king)
         Figure queenBlack = new Figure("Q", "B");
-        do
-        {
-            Console.Write("Enter the coordinates for the queen: ");
-            queenBlack.coord = coordActions.InputCoorinates(Console.ReadLine());
-            if (boardActions.CheckValidate(queenBlack, kingWhite) || !boardActions.CheckIfEmpty(queenBlack))
-            {
-                tryagain = true;
-            }
-            else
-            {
-                _board = boardActions.PlaceOnBoard(queenBlack);
-                tryagain = false;
-            }
-        } while (tryagain);
-
-        printBoard.PrintBoard(_board);
-
-        //put 1st black rook
-        Figure rook1Black = new Figure("R", "B");        
-        do
-        {
-            Console.Write("Enter the coordinates for the 1st black rook: ");
-            rook1Black.coord = coordActions.InputCoorinates(Console.ReadLine());
-            if (!boardActions.CheckValidate(rook1Black, kingWhite) 
-                /*&& !boardActions.NewCordValidate(kingWhite, rook1Black.coord)*/
-                && boardActions.CheckIfEmpty(rook1Black))
-            {
-                _board = boardActions.PlaceOnBoard(rook1Black);
-                tryagain = false;
-            }
-            else
-            {
-                tryagain = true;
-            }
-        } while (tryagain);
-
-        printBoard.PrintBoard(_board);
-
-        //put 2nd black rook
+        Figure rook1Black = new Figure("R", "B");
         Figure rook2Black = new Figure("R", "B");
+
+
+        bool stalemate = true;
         do
         {
-            Console.Write("Enter the coordinates for the 2nd black rook: ");
-            rook2Black.coord = coordActions.InputCoorinates(Console.ReadLine());
-            if (!boardActions.CheckValidate(rook2Black, kingWhite) 
-                /*&& !boardActions.NewCordValidate(kingWhite, rook2Black.coord)*/
-                && boardActions.CheckIfEmpty(rook2Black))
+            //Put white king on board
+            Console.Write("Enter the coordinates for the white King: ");
+            kingWhite.coord = coordActions.InputCoorinates(Console.ReadLine());
+            _board = boardActions.PlaceOnBoard(kingWhite);
+
+            printBoard.PrintBoard(_board);
+            //Put the Black figures on the board
+            tryagain = true;
+
+            do
             {
-                _board = boardActions.PlaceOnBoard(rook2Black);
-                tryagain = false;
-            }
-            else
+                Console.Write("Enter the coordinates for the black King: ");
+                kingBlack.coord = coordActions.InputCoorinates(Console.ReadLine());
+                //Checks if WHite king will be chekced after placing down the figure, and if the coordinates are not busy by another figure
+                if (boardActions.CheckValidate(kingBlack, kingWhite) || !boardActions.CheckIfEmpty(kingBlack))
+                {
+                    tryagain = true;
+                }
+                else
+                {
+                    _board = boardActions.PlaceOnBoard(kingBlack);
+                    tryagain = false;
+                }
+            } while (tryagain);
+
+            //put the black queen on board (same logic as black king)
+
+            do
             {
-                tryagain = true;
-            }
-        } while (tryagain);
+                Console.Write("Enter the coordinates for the queen: ");
+                queenBlack.coord = coordActions.InputCoorinates(Console.ReadLine());
+                if (boardActions.CheckValidate(queenBlack, kingWhite) || !boardActions.CheckIfEmpty(queenBlack))
+                {
+                    tryagain = true;
+                }
+                else
+                {
+                    _board = boardActions.PlaceOnBoard(queenBlack);
+                    tryagain = false;
+                }
+            } while (tryagain);
+
+            printBoard.PrintBoard(_board);
+
+            //put 1st black rook
+            do
+            {
+                Console.Write("Enter the coordinates for the 1st black rook: ");
+                rook1Black.coord = coordActions.InputCoorinates(Console.ReadLine());
+                if (!boardActions.CheckValidate(rook1Black, kingWhite)
+                    /*&& !boardActions.NewCordValidate(kingWhite, rook1Black.coord)*/
+                    && boardActions.CheckIfEmpty(rook1Black))
+                {
+                    _board = boardActions.PlaceOnBoard(rook1Black);
+                    tryagain = false;
+                }
+                else
+                {
+                    tryagain = true;
+                }
+            } while (tryagain);
+
+            printBoard.PrintBoard(_board);
+
+            //put 2nd black rook
+            do
+            {
+                Console.Write("Enter the coordinates for the 2nd black rook: ");
+                rook2Black.coord = coordActions.InputCoorinates(Console.ReadLine());
+                if (!boardActions.CheckValidate(rook2Black, kingWhite)
+                    /*&& !boardActions.NewCordValidate(kingWhite, rook2Black.coord)*/
+                    && boardActions.CheckIfEmpty(rook2Black))
+                {
+                    _board = boardActions.PlaceOnBoard(rook2Black);
+                    tryagain = false;
+                }
+                else
+                {
+                    tryagain = true;
+                }
 
 
-        printBoard.PrintBoard(_board);
+            } while (tryagain);
+
+
+            printBoard.PrintBoard(_board);
+
+            if (!boardActions.FindCheck(kingWhite, kingWhite.coord) && boardActions.MateValidate(kingWhite))
+            {
+                Console.WriteLine("It's a stalemate");
+                _board = boardActions.MakeEmptyBoard();
+            }
+            else stalemate = false;
+        } while (stalemate);
+        
 
         //PLaying chess
         int chooseFigure = 1; //A variabale to choose wich figure is moved 
         bool checkmate = false;
         do
         {
-            //If king is white king is under a check and cannot go anywhere, then its a mate.
-            if (boardActions.FindCheck(kingWhite, kingWhite.coord) && boardActions.MateValidate(kingWhite))
-            {
-                checkmate = true;
-            }
+            
 
             //User moves white King
             tryagain = true;
@@ -277,6 +291,9 @@ internal class RunChessSession
                 //if no check is found play a safe move to avoid draw
                
             } while (tryagain);
+
+            //If king is white king is under a check and cannot go anywhere, then its a mate.
+            checkmate = boardActions.FindCheck(kingWhite, kingWhite.coord) && boardActions.MateValidate(kingWhite);
 
             printBoard.PrintBoard(boardActions.OccupiedCells(FigureTeam.B));
         } while (checkmate == false);

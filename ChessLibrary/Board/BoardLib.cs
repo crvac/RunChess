@@ -49,7 +49,7 @@ public class BoardLib
     /// <param name="newcoord">The coordinates the figure has to go to</param>
     public Figure[,] MoveFiguretoNewCoord(Figure figure, Coord toCoord)
     {
-        board[toCoord.number, toCoord.numericLetter] = new Figure(board[figure.coord.number, figure.coord.numericLetter]);
+        board[toCoord.number, toCoord.numericLetter] = new Figure(figure);
         board[toCoord.number, toCoord.numericLetter].coord = new Coord(toCoord);
 
         board[figure.coord.number, figure.coord.numericLetter] = new Figure();
@@ -222,7 +222,8 @@ public class BoardLib
 
     public bool MateValidate(Figure king)
     {
-
+        //if (!FindCheck(king, king.coord))
+        //    return false;
         //All king avlaable moves
         int[] x = { 0, 1, 1, 1, 0, -1, -1, -1 };
         int[] y = { 1, 1, 0, -1, -1, -1, 0, 1 };
@@ -255,9 +256,7 @@ public class BoardLib
         {
             for (int j = 0; j < 8; j++)
             {
-                ocupBoard[i, j].name = FigureName.empty;
-                ocupBoard[i, j].team = FigureTeam.empty;
-                ocupBoard[i, j].coord = new Coord(i, j);
+                ocupBoard[i, j] = new Figure();
             }
         }
         for (int i = 0; i < 8; i++)
@@ -271,11 +270,11 @@ public class BoardLib
                     {
                         for (int m = 0; m < 8; m++)
                         {
-                            if (NewCordValidate(board[i, j], board[k, m].coord))
+                            if (NewCordValidate(board[i, j], new Coord(k, m)))
                             {
                                 ocupBoard[k, m] = new Figure(board[i, j]);
                             }
-                                }
+                        }
                     }
                 }
             }
