@@ -220,6 +220,11 @@ public class BoardLib
         return new Coord();
     }
 
+    /// <summary>
+    /// Validates mate without check
+    /// </summary>
+    /// <param name="king">King</param>
+    /// <returns>T/F</returns>
     public bool MateValidate(Figure king)
     {
         //if (!FindCheck(king, king.coord))
@@ -249,6 +254,11 @@ public class BoardLib
         return true;
     }
 
+    /// <summary>
+    /// Returns the board with all occupied cells for the specified team
+    /// </summary>
+    /// <param name="team">Team</param>
+    /// <returns>a board</returns>
     public Figure[,] OccupiedCells(FigureTeam team)
     {
         Figure[,] ocupBoard = new Figure[8, 8];
@@ -281,5 +291,81 @@ public class BoardLib
         }
         return ocupBoard;
     }
+
+    /// <summary>
+    /// Lists all avlable moves for the night from the current position
+    /// </summary>
+    /// <param name="knight">KNight</param>
+    /// <returns>the list of coords</returns>
+    public List<Coord> KnightMoveList(Figure knight)
+    {
+        List<Coord> result = new List<Coord>();
+        Figure[,] nBoard = OccupiedCells(knight.team);
+
+        for (int i = 0; i < 8; i++)
+        {
+            for (int j = 0; j < 8; j++)
+            {
+                if (nBoard[i,j].name == knight.name)
+                {
+                    result.Add(new Coord(i, j));
+                }
+            }
+        }
+        return result;
+    }
+
+    public bool KnightMove(Figure knight, Coord toCoord)
+    {
+        // On first move
+        if (NewCordValidate(knight, toCoord))
+        {
+            knight.coord = toCoord;
+            board = PlaceOnBoard(knight);
+            return true;
+        }
+        else
+        {
+            // second move
+            List<Coord> coords = KnightMoveList(knight);
+            if (SeekMove(coords, toCoord))
+            {
+                return true;
+            }
+            else
+            {
+                // third move
+                foreach (Coord coord in coords)
+                {
+                    knight.coord = coord;
+                    List<Coord> coords2 = KnightMoveList(knight);
+                    if (SeekMove(coords2, toCoord))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    public bool SeekMove(List<Coord> coords, Coord toCoord)
+    {
+        Figure knight = new Figure { name = FigureName.N, team = FigureTeam.W };
+
+        foreach (Coord coord in coords)
+        {
+            knight.coord = coord;
+            if (NewCordValidate(knight, toCoord))
+            {
+                board = PlaceOnBoard(knight);
+                knight.coord = toCoord;
+                board = PlaceOnBoard(knight);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 
